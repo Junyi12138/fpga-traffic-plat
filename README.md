@@ -11,24 +11,25 @@ This started as an MSc dissertation project at the University of Edinburgh (Scho
 
 ## Getting Started
 
-1. Physical connection. Plug the ice4pi board onto the Raspberry Pi's 40-pin GPIO header.
-2. Connect to the Pi. Over SSH from another machine, or directly with a keyboard/monitor attached. Enable SPI first (sudo raspi-config → Interface Options → SPI) — this is what lets the Pi flash and talk to the FPGA. Also free up /dev/ttyAMA0 for the FPGA's UART connection: disable Bluetooth (sudo raspi-config → Interface Options → Serial Port → disable) and disable the login shell over serial (same menu, separate option) — both independently claim this interface, and disabling only one still leaves the connection unreliable. If statistics transmission is still flaky after both are off, check for any other process still holding /dev/ttyAMA0 open (e.g. sudo lsof /dev/ttyAMA0) and kill it.
-3. Install the toolchain.
+1. **Physical connection.** Plug the ice4pi board onto the Raspberry Pi's 40-pin GPIO header.
+2. **Connect to the Pi.** Over SSH from another machine, or directly with a keyboard/monitor attached. Enable SPI first (sudo raspi-config → Interface Options → SPI) — this is what lets the Pi flash and talk to the FPGA. Also free up /dev/ttyAMA0 for the FPGA's UART connection: disable Bluetooth (sudo raspi-config → Interface Options → Serial Port → disable) and disable the login shell over serial (same menu, separate option) — both independently claim this interface, and disabling only one still leaves the connection unreliable. If statistics transmission is still flaky after both are off, check for any other process still holding /dev/ttyAMA0 open (e.g. sudo lsof /dev/ttyAMA0) and kill it.
+3. **Install the toolchain.**
    sudo apt install git yosys fpga-icestorm arachne-pnr flashrom
-4. Get ice4pi_prog. Clone the official board repo and keep the example/ folder's ice4pi_prog file for the next step:
+4. **Get ice4pi_prog.** Clone the official board repo and keep the example/ folder's ice4pi_prog file for the next step:
    git clone https://github.com/lightside-instruments/ice4pi.git
-5. Create one working folder on the Pi, and copy everything into it: every .v file, top_v2.pcf, ice4pi_prog (from step 4), the Makefile, and the Python scripts from this repo's verilog/ and python/ folders. They all need to sit together, flat, in this one folder — the Makefile and test_runner.py both use relative paths and won't find anything split across separate directories.
-6. Build and flash:
-   make
-   sudo make load
+5. **Create one working folder on the Pi**, and copy everything into it: every `.v` file, `top.pcf`, `ice4pi_prog` (from step 4), the Makefile, and the Python scripts from this repo's `verilog/` and `python/` folders. They all need to sit together, flat, in this one folder — the Makefile and `test_runner.py` both use relative paths and won't find anything split across separate directories. `traffic_light_extend.v`, `traffic_light_sensor.v`, and `traffic_light_timer.v` all declare the same internal module, `traffic_light_extend` — this is intentional, not a naming mistake, since it's what lets switching control strategies work by swapping a single file. Only one of these three can be present at a time, or the toolchain will fail with a duplicate module definition error.
+6. **Build and flash:**
+
+make
+sudo make load
 
 ## Repository structure
 
 Assumes you're working on the Raspberry Pi (over SSH from another machine, or directly) with the ice4pi board plugged into the Pi's 40-pin header and SPI enabled — that connection is what lets the Pi flash and communicate with the FPGA in the first place.
 
-- `verilog/` — all FPGA source: `top_v2.v`, `road_control_AB.v` / `road_control_lite.v` (full-statistics and lite variants — both declare `module road_control` internally, since `top.v` instantiates them by that name regardless of which file is used), `calculator.v`, three example control strategies (`traffic_light_timer.v`, `traffic_light_sensor.v`, `traffic_light_extend.v` for combine), `hc595_serializer_v2.v`, `buzzer_gate.v`, `frame_clk_div.v`, `stat_reporter.v`, `uart_tx.v`, and the pin constraint file `top_v2.pcf`
+- `verilog/` — all FPGA source: `top.v`, `road_control.v` / `road_control_lite.v` (full-statistics and lite variants), `calculator.v`, three example control strategies (`traffic_light_timer.v`, `traffic_light_sensor.v`, `traffic_light_extend.v` for combine — all three declare the same internal module, `traffic_light_extend`, intentionally, so only one can be present in the build folder at a time), `hc595_serializer.v`, `buzzer_gate.v`, `frame_clk_div.v`, `stat_reporter.v`, `uart_tx.v`, and the pin constraint file `top.pcf`
 - `python/` — test automation: `test_config.py` defines the traffic density/road-type test matrix, `test_runner.py` drives the hardware and records results
-- Note: verilog/ and python/ are separated here for browsing on GitHub only. On the Raspberry Pi itself, everything — all Verilog source files, top_v2.pcf, ice4pi_prog, and the Python scripts — should sit together in one working directory; the Makefile and test_runner.py both expect relative paths within that single folder, not the split structure shown above.
+- Note: `verilog/` and `python/` are separated here for browsing on GitHub only. On the Raspberry Pi itself, everything — all Verilog source files, `top.pcf`, `ice4pi_prog`, and the Python scripts — should sit together in one working directory; the Makefile and `test_runner.py` both expect relative paths within that single folder, not the split structure shown above.
 
 ## Building and flashing
 
