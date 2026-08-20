@@ -45,6 +45,14 @@ sudo make load
 
 Traffic density and road type are set in `test_config.py` as plain Python values (`BASE_INTERVAL`, `MINOR_MULTIPLIER`). Edit these, then run `test_runner.py` to generate a new set of test combinations. Each run produces a timestamped CSV with car count, journey/wait time (total and max), and throughput per direction. 
 
+## Manual demo (classroom use)
+
+demo.py is a simple interactive control panel for live demonstration — not for running the automated 27-combination evaluation (test_runner.py does that). It lets you manually pulse a single car into any direction, trigger the pedestrian button, or reset the FPGA, one command at a time from the terminal:
+
+python3 demo.py
+
+Then type a/b/c/d to send one car to that direction, p for a pedestrian request, r to reset, or q to quit. Useful for showing a control strategy running live on the hardware without setting up a full test run.
+
 ## Writing a control strategy
 
 A control strategy is a single Verilog module, `traffic_light_extend`, and nothing outside it needs to be touched. It must accept `clk_12mhz`, `rst`, `Sa`, `Sb` (merged sensor inputs for the two direction pairs), `Pb` (pedestrian button), and drive `Ga`/`Ya`/`Ra`, `Gb`/`Yb`/`Rb`, `Gp`/`Rp`. The port list must stay exactly as-is even if a design doesn't use every signal — leave unused inputs unread, and tie unused outputs to a constant (e.g. `assign Gp = 1'b0;`) rather than dropping the port.
