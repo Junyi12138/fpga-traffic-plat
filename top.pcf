@@ -1,0 +1,13 @@
+set_io clk_12mhz  21
+set_io rst        137
+set_io start_a    135
+set_io start_b    120
+set_io start_c    118
+set_io start_d    117
+set_io Pb         129
+set_io ds          78
+set_io shcp        79
+set_io stcp        80
+set_io buzzer_out  81
+set_io uart_tx_pin  8
+set_io read_stats   134
