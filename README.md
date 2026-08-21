@@ -31,6 +31,8 @@ Assumes you're working on the Raspberry Pi (over SSH from another machine, or di
 - `python/` — test automation: `test_config.py` defines the traffic density/road-type test matrix, `test_runner.py` drives the hardware and records results
 - Note: `verilog/` and `python/` are separated here for browsing on GitHub only. On the Raspberry Pi itself, everything — all Verilog source files, `top.pcf`, `ice4pi_prog`, and the Python scripts — should sit together in one working directory; the Makefile and `test_runner.py` both expect relative paths within that single folder, not the split structure shown above.
 
+hardware/ — PCB design files (Traffic_light_v2) and the full bill of materials
+
 ## Building and flashing
 
 Toolchain: ice4pi open-source flow (yosys, arachne-pnr, icepack, flashed via ice4pi_prog). ice4pi_prog comes from the official lightside-instruments/ice4pi repository, in its example/ folder alongside the sample Makefile — clone that repo and copy ice4pi_prog from there if it's missing from this project.
